@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from cinema.models import Movie, Actor, CinemaHall, Genres
+from cinema.models import Movie, Actor, CinemaHall, Genre
 
 
 class MovieSerializer(serializers.Serializer):
@@ -48,7 +48,7 @@ class GenreSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=255)
 
     def create(self, validated_data):
-        return Genres.objects.create(**validated_data)
+        return Genre.objects.create(**validated_data)
 
     def update(self, instance, validated_data):
         instance.name = validated_data.get("name", instance.name)

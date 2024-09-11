@@ -1,15 +1,17 @@
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
-from rest_framework import status, mixins, generics, viewsets
-from rest_framework.views import APIView
+from rest_framework import status, mixins, generics, viewsets, views
 
-from cinema.models import Movie, Genres
-from cinema.serializers import MovieSerializer, GenreSerializer
+from cinema.models import Movie, Genre, CinemaHall, Actor
+from cinema.serializers import (MovieSerializer,
+                                GenreSerializer,
+                                CinemaHallSerializer,
+                                ActorSerializer)
 
 
-class GenresList(APIView):
+class GenreList(views.APIView):
     def get(self, request):
-        genre = Genres.objects.all()
+        genre = Genre.objects.all()
         serializer = GenreSerializer(genre, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -21,21 +23,34 @@ class GenresList(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class GenresDetail(APIView):
-    def get_object(self, pk: int) -> Genres:
-        return get_object_or_404(Genres, pk=pk)
+class GenreDetail(views.APIView):
+    def get_object(self, pk: int) -> Genre:
+        return get_object_or_404(Genre, pk=pk)
 
     def get(self, request, pk: int) -> Response:
-        genre = self.get_object(pk)
+        genre = self.get_object(pk=pk)
         serializer = GenreSerializer(genre)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request, pk: int) -> Response:
-        genre = self.get_object(pk)
+        genre = self.get_object(pk=pk)
         serializer = GenreSerializer(genre, data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk: int) -> Response:
+        genre = self.get_object(pk=pk)
+        genre.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def patch(self, request, pk: int) -> Response:
+        genre = self.get_object(pk=pk)
+        serializer = GenreSerializer(genre, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -44,8 +59,8 @@ class ActorList(
     mixins.CreateModelMixin,
     generics.GenericAPIView,
 ):
-    queryset = Movie.objects.all()
-    serializer_class = MovieSerializer
+    queryset = Actor.objects.all()
+    serializer_class = ActorSerializer
 
     def get(self, request, *args, **kwargs) -> Response:
         return self.list(request, *args, **kwargs)
@@ -60,8 +75,8 @@ class ActorDetail(
     mixins.DestroyModelMixin,
     generics.GenericAPIView,
 ):
-    queryset = Movie.objects.all()
-    serializer_class = MovieSerializer
+    queryset = Actor.objects.all()
+    serializer_class = ActorSerializer
 
     def get(self, request, *args, **kwargs) -> Response:
         return self.retrieve(request, *args, **kwargs)
@@ -72,6 +87,9 @@ class ActorDetail(
     def delete(self, request, *args, **kwargs) -> Response:
         return self.destroy(request, *args, **kwargs)
 
+    def patch(self, request, *args, **kwargs) -> Response:
+        return self.partial_update(request, *args, **kwargs)
+
 
 class CinemaHallViewSet(
     mixins.ListModelMixin,
@@ -81,10 +99,10 @@ class CinemaHallViewSet(
     mixins.DestroyModelMixin,
     viewsets.GenericViewSet,
 ):
-    queryset = Movie.objects.all()
-    serializer_class = MovieSerializer
+    queryset = CinemaHall.objects.all()
+    serializer_class = CinemaHallSerializer
 
 
-class MovieHallViewSet(viewsets.ModelViewSet):
+class MovieViewSet(viewsets.ModelViewSet):
     queryset = Movie.objects.all()
     serializer_class = MovieSerializer

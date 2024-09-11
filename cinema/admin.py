@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from cinema.models import Movie, Genres, CinemaHall, Actor
+from cinema.models import Movie, Genre, CinemaHall, Actor
 
 
 @admin.register(Movie)
@@ -8,7 +8,7 @@ class MovieAdmin(admin.ModelAdmin):
     pass
 
 
-@admin.register(Genres)
+@admin.register(Genre)
 class GenreAdmin(admin.ModelAdmin):
     pass
 

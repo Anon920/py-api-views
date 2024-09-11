@@ -9,7 +9,7 @@ class Actor(models.Model):
         return f"{self.first_name} {self.last_name}"
 
 
-class Genres(models.Model):
+class Genre(models.Model):
     name = models.CharField(max_length=255, unique=True)
 
     def __str__(self):
@@ -30,7 +30,7 @@ class Movie(models.Model):
     description = models.TextField()
     duration = models.IntegerField()
     actors = models.ManyToManyField(Actor, related_name="movies")
-    genres = models.ManyToManyField(Genres, related_name="movies")
+    genres = models.ManyToManyField(Genre, related_name="movies")
 
     def __str__(self):
         return self.title
